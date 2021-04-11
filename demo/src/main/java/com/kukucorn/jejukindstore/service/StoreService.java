@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -17,6 +18,17 @@ import java.util.stream.Collectors;
 public class StoreService {
 
     private final StoreRepository storeRepository;
+
+    @Transactional
+    public StoreResponseDto find(Integer id) {
+        Optional<Store> findStore = storeRepository.findById(id);
+
+        if(!findStore.isPresent()) {
+            throw new IllegalArgumentException("존재하지 않는 id 입니다.");
+        }
+
+        return new StoreResponseDto(findStore.get());
+    }
 
     @Transactional
     public List<StoreListResponseDto> findAll() {
@@ -28,4 +40,5 @@ public class StoreService {
         Store store = storeRepository.save(requestDto.toEntity());
         return store.getId();
     }
+
 }

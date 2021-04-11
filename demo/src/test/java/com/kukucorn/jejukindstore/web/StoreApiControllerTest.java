@@ -49,4 +49,37 @@ public class StoreApiControllerTest {
         assertThat(all.get(0).getName()).isEqualTo(name);
         assertThat(all.get(0).getTelephone()).isEqualTo(telephone);
     }
+
+    @Test
+    public void store_list_조회하다() {
+        // given
+        String url = "http://localhost:" + port + "/api/v1/store";
+
+        // when
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
+
+        // then
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        System.out.println(responseEntity.getBody());
+    }
+
+    @Test
+    public void store_조회하다() {
+        // given
+        String name = "알쌈닭";
+        String location = "구미";
+        String address = "구미 옥계동";
+        String telephone = "010-1234-5678";
+
+        Store store = storeRepository.save(new StoreSaveRequestDto(name, location, address, telephone).toEntity());
+
+        String url = "http://localhost:" + port + "/api/v1/store/" + store.getId();
+
+        // when
+        ResponseEntity<Store> responseEntity = restTemplate.getForEntity(url, Store.class);
+
+        // then
+        assertThat(responseEntity.getBody().getName()).isEqualTo(name);
+        assertThat(responseEntity.getBody().getAddress()).isEqualTo(address);
+    }
 }
