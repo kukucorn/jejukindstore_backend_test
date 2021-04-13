@@ -1,33 +1,76 @@
 package com.kukucorn.jejukindstore.public_data;
 
+import com.kukucorn.jejukindstore.domain.store.StoreRepository;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
+@Component
 public class PublicDataService {
 
-    // (url) -> Dom
-    public String getXMLFromUrl(String strUrl) throws Exception {
+    private final StoreRepository storeRepository;
 
-        StringBuilder urlBuilder = new StringBuilder("http://210.99.248.79/rest/GoodPriceStoreService/getGoodPriceStoreList"); /*URL*/
-        urlBuilder.append("?" + URLEncoder.encode("ServiceKey","UTF-8") + "=2To0T7JGsCWoVHuRZ9JJpXgH43XEM7voKHbKqE%2FMW0WITJeIu2LPplMYBUwbukV6hGN6Z3IwsrTc9ea8RhQzEg%3D%3D"); /*Service Key*/
-        urlBuilder.append("&" + URLEncoder.encode("pageNo","UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /*시작 페이지*/
-        urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("10", "UTF-8")); /*페이지 사이즈*/
-        urlBuilder.append("&" + URLEncoder.encode("ServceKey","UTF-8") + "=" + URLEncoder.encode("", "UTF-8")); /*요청키*/
-        URL url = new URL(urlBuilder.toString());
+    public void uploadStoreDataToDB() {
+
+        List<JejuKindStore> storeList = getStoreListFromUrl("");
+
+        for(int i = 0; i < storeList.size(); i++) {
+            JejuKindStore store = storeList.get(i);
+            storeRepository.save(store.toStore());
+            // 메뉴
+            // 태그
+            // 가게 태그
+        }
+    }
+
+    public List<JejuKindStore> getStoreListFromUrl(String strUrl) {
+        try {
+            URL url = convertStringToUrl(strUrl);
+            String xmlString = getXMLStringFromUrl(url);
+            Document document = convertStringToXMLDocument(xmlString);
+            return convertDocumentToList(document);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private URL convertStringToUrl(String strUrl) {
+
+        try {
+            StringBuilder urlBuilder = new StringBuilder("http://210.99.248.79/rest/GoodPriceStoreService/getGoodPriceStoreList"); /*URL*/
+            urlBuilder.append("?" + URLEncoder.encode("ServiceKey","UTF-8") + "=2To0T7JGsCWoVHuRZ9JJpXgH43XEM7voKHbKqE%2FMW0WITJeIu2LPplMYBUwbukV6hGN6Z3IwsrTc9ea8RhQzEg%3D%3D"); /*Service Key*/
+            urlBuilder.append("&" + URLEncoder.encode("pageNo","UTF-8") + "=" + URLEncoder.encode("2", "UTF-8")); /*시작 페이지*/
+            urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("20", "UTF-8")); /*페이지 사이즈*/
+
+            URL url = new URL(urlBuilder.toString());
+
+            return url;
+        } catch (UnsupportedEncodingException encodingException) {
+            encodingException.printStackTrace();
+        } catch (MalformedURLException urlException) {
+            urlException.printStackTrace();
+        }
+        return null;
+    }
+
+    private String getXMLStringFromUrl(URL url) throws Exception {
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
@@ -55,25 +98,44 @@ public class PublicDataService {
         return sb.toString();
     }
 
-    public List<JejuKindStore> XMLToList(String xml) throws Exception {
+    private Document convertStringToXMLDocument(String xml) throws Exception {
 
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        // Parser that produces DOM object trees from XML content
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-        Document doc = dBuilder.parse(new InputSource(new StringReader(xml)));
+        // API to obtain DOM Document instance
+        DocumentBuilder builder = null;
+        try
+        {
+            // Create DocumentBuilder with default configuration
+            builder = factory.newDocumentBuilder();
 
-        doc.getDocumentElement().normalize();
+            // Parse the content to Document object
+            Document doc = builder.parse(new InputSource(new StringReader(xml)));
+            return doc;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-        NodeList nodeList = doc.getElementsByTagName("list");
+    private List<JejuKindStore> convertDocumentToList(Document document) {
 
+        final String[] nodeNames = {};
+
+        NodeList nodeList = document.getElementsByTagName("list");
         List<JejuKindStore> storeList = new ArrayList<>();
-        for(int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
 
+        for(int i = 0; i < nodeList.getLength(); i++) {
+            Node storeInfoRootNode = nodeList.item(i);
+
+            JejuKindStore storeInfo = new JejuKindStore((Element)storeInfoRootNode);
+
+            storeList.add(storeInfo);
         }
 
-
-
-        return null;
+        return storeList;
     }
 }

@@ -15,7 +15,7 @@ public class Store {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(length = 45, nullable = false)
+    @Column(length = 100, nullable = false)
     private String name;
 
     @Column(length = 45, nullable = false)
@@ -27,11 +27,15 @@ public class Store {
     @Column(length = 45, nullable = false)
     private String telephone;
 
+    @Column(length = 45, nullable = false)
+    private String category;
+
     @Builder
-    public Store(String name, String location, String address, String telephone) {
+    public Store(String name, String location, String address, String telephone, String category) {
         this.name = name;
         this.location = location;
         this.address = address;
         this.telephone = telephone;
+        this.category = category;
     }
 }
