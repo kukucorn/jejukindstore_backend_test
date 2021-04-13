@@ -26,8 +26,7 @@ public class StoreMenu {
     private Store store;
 
     @Builder
-    public StoreMenu(int id, String name, String price, Store store) {
-        this.id = id;
+    public StoreMenu(String name, String price, Store store) {
         this.name = name;
         this.price = price;
         this.store = store;
