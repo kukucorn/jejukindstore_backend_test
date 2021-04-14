@@ -3,15 +3,17 @@ package com.kukucorn.jejukindstore.domain.storemenu;
 import com.kukucorn.jejukindstore.domain.store.Store;
 import com.sun.istack.NotNull;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.context.annotation.Primary;
 
 import javax.persistence.*;
 
-@Entity
+@Getter
 @NoArgsConstructor
 @Table(name = "store_menu")
+@Entity(name = "store_menu")
 public class StoreMenu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
