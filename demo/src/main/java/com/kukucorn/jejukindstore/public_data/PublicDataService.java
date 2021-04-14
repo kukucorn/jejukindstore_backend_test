@@ -1,6 +1,9 @@
 package com.kukucorn.jejukindstore.public_data;
 
+import com.kukucorn.jejukindstore.domain.store.Store;
 import com.kukucorn.jejukindstore.domain.store.StoreRepository;
+import com.kukucorn.jejukindstore.domain.storemenu.StoreMenu;
+import com.kukucorn.jejukindstore.domain.storemenu.StoreMenuRepository;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -25,15 +28,25 @@ import java.util.List;
 public class PublicDataService {
 
     private final StoreRepository storeRepository;
+    private final StoreMenuRepository storeMenuRepository;
 
     public void uploadStoreDataToDB() {
 
         List<JejuKindStore> storeList = getStoreListFromUrl("");
 
         for(int i = 0; i < storeList.size(); i++) {
-            JejuKindStore store = storeList.get(i);
-            storeRepository.save(store.toStore());
+            JejuKindStore storeInfo = storeList.get(i);
+
+            // 가게
+            Store store = storeInfo.toStore();
+            storeRepository.save(store);
+
             // 메뉴
+            List<StoreMenu> storeMenu = storeInfo.toStoreMenuList(store);
+            for(StoreMenu menu : storeMenu) {
+                storeMenuRepository.save(menu);
+            }
+
             // 태그
             // 가게 태그
         }
@@ -55,9 +68,9 @@ public class PublicDataService {
 
         try {
             StringBuilder urlBuilder = new StringBuilder("http://210.99.248.79/rest/GoodPriceStoreService/getGoodPriceStoreList"); /*URL*/
-            urlBuilder.append("?" + URLEncoder.encode("ServiceKey","UTF-8") + "=2To0T7JGsCWoVHuRZ9JJpXgH43XEM7voKHbKqE%2FMW0WITJeIu2LPplMYBUwbukV6hGN6Z3IwsrTc9ea8RhQzEg%3D%3D"); /*Service Key*/
-            urlBuilder.append("&" + URLEncoder.encode("pageNo","UTF-8") + "=" + URLEncoder.encode("2", "UTF-8")); /*시작 페이지*/
-            urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("20", "UTF-8")); /*페이지 사이즈*/
+                urlBuilder.append("?" + URLEncoder.encode("ServiceKey","UTF-8") + "=2To0T7JGsCWoVHuRZ9JJpXgH43XEM7voKHbKqE%2FMW0WITJeIu2LPplMYBUwbukV6hGN6Z3IwsrTc9ea8RhQzEg%3D%3D"); /*Service Key*/
+            urlBuilder.append("&" + URLEncoder.encode("pageNo","UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /*시작 페이지*/
+            urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("3760", "UTF-8")); /*페이지 사이즈*/
 
             URL url = new URL(urlBuilder.toString());
 

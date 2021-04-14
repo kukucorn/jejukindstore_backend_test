@@ -4,6 +4,7 @@ import com.kukucorn.jejukindstore.domain.store.Store;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.context.annotation.Primary;
 
 import javax.persistence.*;
@@ -19,7 +20,7 @@ public class StoreMenu {
     @Column(length = 100, nullable = false)
     private String name;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 100, nullable = false)
     private String price;
 
     @ManyToOne
@@ -30,5 +31,10 @@ public class StoreMenu {
         this.name = name;
         this.price = price;
         this.store = store;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("\n name : %s    price : %s", name, price);
     }
 }

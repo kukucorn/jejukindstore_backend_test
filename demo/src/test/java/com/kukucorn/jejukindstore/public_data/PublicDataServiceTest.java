@@ -2,6 +2,7 @@ package com.kukucorn.jejukindstore.public_data;
 
 import com.kukucorn.jejukindstore.domain.store.Store;
 import com.kukucorn.jejukindstore.domain.store.StoreRepository;
+import com.kukucorn.jejukindstore.domain.storemenu.StoreMenuRepository;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,9 @@ public class PublicDataServiceTest {
     private StoreRepository storeRepository;
 
     @Autowired
+    private StoreMenuRepository storeMenuRepository;
+
+    @Autowired
     private PublicDataService publicDataService;
 
     @Test
@@ -31,5 +35,6 @@ public class PublicDataServiceTest {
 
         // then
         assertThat(storeRepository.count()).isGreaterThan(0);
+        assertThat(storeMenuRepository.count()).isGreaterThan(0);
     }
 }
